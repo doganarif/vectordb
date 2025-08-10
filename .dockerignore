@@ -1,0 +1,37 @@
+# VCS
+.git
+.gitignore
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.venv
+
+# Env files
+.env
+.env.*
+
+# Project artifacts not needed in image
+data/
+app/tests/
+dist/
+build/
+node_modules/
+
+# Docker/Compose files are provided at build time by the host
+docker-compose*.yml
+*.pyc
+*.pyd
+*.log
+.data
+pytest_cache/
+.cache/
+.ds_store
+.vscode
+.idea

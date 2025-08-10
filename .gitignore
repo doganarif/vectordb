@@ -1,0 +1,122 @@
+###############################################
+# Python
+###############################################
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+*.dll
+
+###############################################
+# Distribution / packaging
+###############################################
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+###############################################
+# Unit test / coverage
+###############################################
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+###############################################
+# Type checkers
+###############################################
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+###############################################
+# Translations
+###############################################
+*.mo
+*.pot
+
+###############################################
+# Documentation
+###############################################
+docs/_build/
+doc/_build/
+site/
+
+###############################################
+# Jupyter / IPython
+###############################################
+.ipynb_checkpoints
+profile_default/
+
+###############################################
+# Environments
+###############################################
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+__pypackages__/
+
+###############################################
+# Editors / IDEs / OS
+###############################################
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+###############################################
+# Logs & misc
+###############################################
+*.log
+cython_debug/
+
+###############################################
+# Project-specific
+###############################################
+data/snapshot.json
+.DS_Store
