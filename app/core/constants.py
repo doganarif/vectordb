@@ -1,0 +1,31 @@
+"""Application constants."""
+
+# Search constants
+DEFAULT_SEARCH_MULTIPLIER = 3
+MAX_SEARCH_BUFFER = 50
+MIN_SEARCH_K = 1
+
+# Index algorithms
+INDEX_LINEAR = "linear"
+INDEX_KDTREE = "kdtree"
+INDEX_LSH = "lsh"
+AVAILABLE_ALGORITHMS = [INDEX_LINEAR, INDEX_KDTREE, INDEX_LSH]
+
+# Distance metrics
+METRIC_COSINE = "cosine"
+METRIC_EUCLIDEAN = "euclidean"
+AVAILABLE_METRICS = [METRIC_COSINE, METRIC_EUCLIDEAN]
+
+# Algorithm-metric compatibility
+ALGORITHM_METRICS = {
+    INDEX_LINEAR: [METRIC_COSINE, METRIC_EUCLIDEAN],
+    INDEX_KDTREE: [METRIC_EUCLIDEAN],
+    INDEX_LSH: [METRIC_COSINE],
+}
+
+# HTTP timeouts
+EMBEDDING_TIMEOUT = 30.0
+
+# Validation limits
+MAX_TEXT_LENGTH = 10000
+MIN_TEXT_LENGTH = 1

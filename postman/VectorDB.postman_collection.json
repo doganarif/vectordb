@@ -1,0 +1,494 @@
+{
+  "info": {
+    "name": "VectorDB API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Ensure baseUrl is set",
+          "if (!pm.collectionVariables.get('baseUrl')) {",
+          "  pm.collectionVariables.set('baseUrl', 'http://127.0.0.1:8000');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('body has status ok', function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body.status).to.eql('ok');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Library",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"demo\",\n  \"description\": \"Demo library\",\n  \"metadata\": {\n    \"lang\": \"en\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/libraries/",
+          "host": ["{{baseUrl}}"],
+          "path": ["libraries", ""]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 201', function () { pm.expect(pm.response.code).to.eql(201); });",
+              "const body = pm.response.json();",
+              "pm.test('has id', function () { pm.expect(body.id).to.be.a('string'); });",
+              "pm.collectionVariables.set('library_id', body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Libraries",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/libraries/", "host": ["{{baseUrl}}"], "path": ["libraries", ""]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('is array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Library",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/libraries/{{library_id}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["libraries", "{{library_id}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('matches collection library_id', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('library_id')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Library",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"name\": \"demo-updated\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('name updated', function () { pm.expect(pm.response.json().name).to.eql('demo-updated'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Document",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"doc\",\n  \"description\": \"Demo doc\",\n  \"metadata\": {\n    \"topic\": \"general\"\n  }\n}"
+        },
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/documents", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "documents"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 201', function () { pm.expect(pm.response.code).to.eql(201); });",
+              "const body = pm.response.json();",
+              "pm.test('has id', function () { pm.expect(body.id).to.be.a('string'); });",
+              "pm.collectionVariables.set('document_id', body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Chunk",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"document_id\": \"{{document_id}}\",\n  \"text\": \"The Eiffel Tower is located in Paris.\",\n  \"embedding\": [0.0, 1.0, 0.0],\n  \"metadata\": {\n    \"lang\": \"en\"\n  }\n}"
+        },
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/chunks", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "chunks"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 201', function () { pm.expect(pm.response.code).to.eql(201); });",
+              "const b = pm.response.json();",
+              "pm.test('has id/text', function () { pm.expect(b.id).to.be.a('string'); pm.expect(b.text).to.be.a('string'); });",
+              "pm.collectionVariables.set('chunk_id', b.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List Documents",
+      "request": {
+        "method": "GET",
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/documents", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "documents"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('is array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Document",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"title\": \"doc-updated\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/documents/{{document_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "documents", "{{document_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('title updated', function () { pm.expect(pm.response.json().title).to.eql('doc-updated'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Document",
+      "request": {
+        "method": "DELETE",
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/documents/{{document_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "documents", "{{document_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update Chunk",
+      "request": {
+        "method": "PATCH",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"text\": \"Updated text\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/chunks/{{chunk_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "chunks", "{{chunk_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('text updated', function () { pm.expect(pm.response.json().text).to.eql('Updated text'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Chunk",
+      "request": {
+        "method": "DELETE",
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/chunks/{{chunk_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "chunks", "{{chunk_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Library",
+      "request": {
+        "method": "DELETE",
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 204', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Embedding",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"text\": \"Paris is the capital of France\"\n}"},
+        "url": {"raw": "{{baseUrl}}/embeddings", "host": ["{{baseUrl}}"], "path": ["embeddings"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200 or 400', function () { pm.expect([200,400]).to.include(pm.response.code); });",
+              "if (pm.response.code === 200) {",
+              "  const b = pm.response.json();",
+              "  pm.test('has embedding array', function () { pm.expect(b.embedding).to.be.an('array'); });",
+              "} else {",
+              "  const b = pm.response.json();",
+              "  pm.test('missing key message', function () { pm.expect(b.detail).to.be.ok; });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Build Index (linear, cosine)",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"algorithm\": \"linear\",\n  \"metric\": \"cosine\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/index", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "index"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 202', function () { pm.expect(pm.response.code).to.eql(202); });",
+              "const b = pm.response.json();",
+              "pm.test('index meta', function () { pm.expect(b.algorithm).to.eql('linear'); pm.expect(b.metric).to.eql('cosine'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Build Index (kdtree, euclidean)",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"algorithm\": \"kdtree\",\n  \"metric\": \"euclidean\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/index", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "index"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 202', function () { pm.expect(pm.response.code).to.eql(202); });",
+              "const b = pm.response.json();",
+              "pm.test('index meta', function () { pm.expect(b.algorithm).to.eql('kdtree'); pm.expect(b.metric).to.eql('euclidean'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Build Index (lsh, cosine)",
+      "request": {
+        "method": "PUT",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"algorithm\": \"lsh\",\n  \"metric\": \"cosine\"\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/index", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "index"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 202', function () { pm.expect(pm.response.code).to.eql(202); });",
+              "const b = pm.response.json();",
+              "pm.test('index meta', function () { pm.expect(b.algorithm).to.eql('lsh'); pm.expect(b.metric).to.eql('cosine'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search (k=3)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"vector\": [0.0, 1.0, 0.0],\n  \"k\": 3\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/searches", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "searches"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "const b = pm.response.json();",
+              "pm.test('has results array', function () { pm.expect(b.results).to.be.an('array'); });",
+              "pm.test('has metric and algorithm', function () { pm.expect(b.metric).to.be.a('string'); pm.expect(b.algorithm).to.be.a('string'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search with Filters",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"vector\": [0.0, 1.0, 0.0],\n  \"k\": 5,\n  \"metadata_filters\": {\n    \"lang\": \"en\"\n  }\n}"},
+        "url": {"raw": "{{baseUrl}}/libraries/{{library_id}}/searches", "host": ["{{baseUrl}}"], "path": ["libraries", "{{library_id}}", "searches"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "const b = pm.response.json();",
+              "pm.test('results filtered', function () { if (b.results.length) { pm.expect(b.results.every(r => r.metadata && r.metadata.lang === 'en')).to.be.true; } });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Save Snapshot",
+      "request": {
+        "method": "POST",
+        "url": {"raw": "{{baseUrl}}/admin/snapshots", "host": ["{{baseUrl}}"], "path": ["admin", "snapshots"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('has saved_to', function () { pm.expect(pm.response.json().saved_to).to.be.a('string'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Load Snapshot",
+      "request": {
+        "method": "PUT",
+        "url": {"raw": "{{baseUrl}}/admin/snapshots", "host": ["{{baseUrl}}"], "path": ["admin", "snapshots"]}
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('loaded status', function () { pm.expect(pm.response.json().status).to.eql('loaded'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "baseUrl", "value": "http://127.0.0.1:8000"},
+    {"key": "library_id", "value": ""},
+    {"key": "document_id", "value": ""},
+    {"key": "chunk_id", "value": ""}
+  ]
+}
+

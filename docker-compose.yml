@@ -1,0 +1,28 @@
+services:
+  api:
+    image: vectordb:prod
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DATA_DIR=/data
+      - DEFAULT_METRIC=${DEFAULT_METRIC:-cosine}
+      - DEFAULT_INDEX=${DEFAULT_INDEX:-linear}
+      - COHERE_API_KEY=${COHERE_API_KEY:-}
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-1}
+    volumes:
+      - vectordb_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  vectordb_data:
+
